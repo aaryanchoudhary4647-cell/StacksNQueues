@@ -9,16 +9,12 @@ public:
                 st.push(s[i]);
             }
             else{
-                if(!st.empty() && st.top()=='(' && s[i]==')'){
-                    st.pop();
-                }
-                else if(!st.empty() && st.top()=='{' && s[i]=='}'){
-                    st.pop();
-                }
-                else if(!st.empty() && st.top()=='[' && s[i]==']'){
-                    st.pop();
-                }
-                else{return false;}
+                if(st.empty()){return false;} // becoz we got a closing before any opening bracket
+
+                char c = st.top();
+                st.pop();
+                if(c=='(' && s[i]!=')' || 
+                c=='{' && s[i]!='}' || c=='[' && s[i]!=']'){return false;}
             }
         }
 
