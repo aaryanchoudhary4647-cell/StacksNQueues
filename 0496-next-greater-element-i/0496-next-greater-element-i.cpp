@@ -1,6 +1,7 @@
 class Solution {
 public:
     // as we have already done with the brute force approach , now we will use monotonic stack , where monotonic means that we are storing data in stack in a particular order.
+    // THAT ORDER IS DECREASING STACK
 
     // the intuition is that we will store the elements of nums2 from last and simultaneously we will store their next max in a map
 
@@ -9,24 +10,17 @@ public:
         vector<int> ans;
         stack<int> s;
         for(int i=nums2.size()-1;i>=0;i--){
+            while(!s.empty() and s.top()<nums2[i]){
+                s.pop();
+            }
             if(s.empty()){
                 mpp[nums2[i]] = -1;
-                s.push(nums2[i]);
             }
             else{
-                while(!s.empty()){
-                    if(s.top()>nums2[i]){
-                        mpp[nums2[i]] = s.top();
-                        s.push(nums2[i]);
-                        break;
-                    }
-                    else{s.pop();}
-                }
-                if(s.empty()){
-                    mpp[nums2[i]] = -1;
-                    s.push(nums2[i]);
-                }
+                mpp[nums2[i]] = s.top();
             }
+
+            s.push(nums2[i]);
         }
 
         for(int i=0;i<nums1.size();i++){
