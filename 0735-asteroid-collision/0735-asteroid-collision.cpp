@@ -20,12 +20,12 @@ public:
                 
             }
         }
-        vector<int> ans;
-        while(!s.empty()){
-            ans.push_back(s.top());
+        vector<int> ans(s.size());
+        for(int i=s.size()-1;i>=0;i--){
+            ans[i] = s.top();
             s.pop();
         }
-        reverse(ans.begin(),ans.end());
+        
         
 
         return ans;
