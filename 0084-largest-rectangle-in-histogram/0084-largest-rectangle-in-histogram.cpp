@@ -1,49 +1,31 @@
 class Solution {
 public:
-    // optimal soln using the concept of nse and pse
-    // we have to find the max width of the rectangle we can make assuming the
-    // current heights[i] is max for that rectangle
+// This is the optimal approach for this question 
+// the intution is similar to the brute where we calculated max(ans,nse-pse-1)
+// so in this approach while traversal from left to right we will get pse easily , so all comes down to nse which will be nothing but the element on the top of the stack when we will remove it while calculating pse 
     int largestRectangleArea(vector<int>& heights) {
+        stack<int> s;
         int n = heights.size();
-        vector<int> nse(n);
-        stack<int> s1;
-
-        for (int i = n - 1; i >= 0; i--) {
-            while (!s1.empty() && heights[i] <= heights[s1.top()]) {
-                s1.pop();
-            }
-
-            if (s1.empty()) {
-                nse[i] = -1;
-            } else {
-                nse[i] = s1.top();
-            }
-
-            s1.push(i);
-        }
-        vector<int> pse(n);
-        stack<int> s2;
-
-        for (int i = 0; i < n; i++) {
-            while (!s2.empty() && heights[i] <= heights[s2.top()]) {
-                s2.pop();
-            }
-
-            if (s2.empty()) {
-                pse[i] = -1;
-            } else {
-                pse[i] = s2.top();
-            }
-
-            s2.push(i);
-        }
-
         int ans = 0;
-        for (int i = 0; i < n; i++) {
-            int leftBound = pse[i];
-            int rightBound = (nse[i] == -1) ? n : nse[i];
-            int width = rightBound - leftBound - 1;
-            ans = max(ans, heights[i] * width);
+        for(int i=0;i<n;i++){
+
+            while(!s.empty() && heights[i]<heights[s.top()]){
+                int el = s.top();
+                s.pop();
+                int pse = s.empty() ? -1 : s.top();
+                ans = max(ans,heights[el]*(i-pse-1)); // here nse is i and pse is s.top() after we removed the current element el
+            }
+
+            s.push(i);
+
+        }
+
+        while(!s.empty()){
+            int el = s.top();
+            s.pop();
+            int pse = s.empty() ? -1 : s.top();
+            
+            ans = max(ans,heights[el]*(n-pse-1));
         }
 
         return ans;
