@@ -1,17 +1,19 @@
 class StockSpanner {
 public:
-// the intuition is that while pushing an element we will see that how much span it has becoz if there will be any element in future who will be greater than this then the previous span can be used
+// in this the logic of PGE or previousGreaterElement is used as we have did in the above approach as well , but in this instead of storing previous span and just add it , here we will store the element and its index and use span = 1 + (ct-pge-1)
     StockSpanner() {
         
     }
     stack<pair<int,int>> s;
+    int ct=0;
     int next(int price) {
-        int span =1;
         while(!s.empty() && s.top().first<=price){
-            span += s.top().second;
             s.pop();
         }
-        s.push({price,span});
+        int ngeInd = s.empty() ? -1 : s.top().second ; 
+        int span = ct-ngeInd;
+        s.push({price,ct});
+        ct++;   
         return span;
     }
 };
