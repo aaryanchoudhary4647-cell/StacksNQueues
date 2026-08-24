@@ -1,4 +1,4 @@
-// brute force approach
+// optimal approach
 struct Node {
     int key, val, ct;
     Node* next;
@@ -13,87 +13,111 @@ struct Node {
     }
 };
 
-void deletion(Node* temp) {
-    Node* nextNode = temp->next;
-    Node* prevNode = temp->back;
+struct List {
+    int size;
+    Node* head;
+    Node* tail;
 
-    prevNode->next = nextNode;
-    nextNode->back = prevNode;
-}
-
-void insertion(Node* temp, Node* head) {
-    Node* nextNode = head->next;
-    head->next = temp;
-    temp->back = head;
-    temp->next = nextNode;
-    nextNode->back = temp;
-}
-
-void deletionOfTail(Node* head, Node* tail, map<int, Node*>& mpp) {
-    Node* minFreqNode = tail->back;
-    Node* mover = tail->back;
-    while (mover != head) {
-        if ((minFreqNode->ct) > (mover->ct)) {
-            minFreqNode = mover;
-        }
-        mover = mover->back;
-    }
-
-    Node* nextNode = minFreqNode->next;
-    Node* prevNode = minFreqNode->back;
-
-    nextNode->back = prevNode;
-    prevNode->next = nextNode;
-    int key = minFreqNode->key;
-    mpp.erase(key);
-    delete minFreqNode;
-}
-
-class LFUCache {
-public:
-    Node* head = new Node(-1, -1);
-    Node* tail = new Node(-1, -1);
-    map<int, Node*> mpp;
-    int sz;
-    LFUCache(int capacity) {
-        sz = capacity;
+    List() {
+        head = new Node(-1, -1);
+        tail = new Node(-1, -1);
 
         head->next = tail;
         tail->back = head;
+        size = 0;
+    }
+
+    void deletionOfNode(Node* temp) {
+        Node* prevNode = temp->back;
+        Node* nextNode = temp->next;
+
+        prevNode->next = nextNode;
+        nextNode->back = prevNode;
+        size--;
+    }
+
+    void addFront(Node* temp) {
+        Node* nextNode = head->next;
+
+        head->next = temp;
+        temp->back = head;
+        temp->next = nextNode;
+        nextNode->back = temp;
+        size++;
+    }
+};
+
+class LFUCache {
+public:
+    map<int, Node*> mpp;
+    map<int, List*> freqMap; // will store ct as key and lists as value
+    int sz;
+    int minFreq;
+    LFUCache(int capacity) {
+        sz = capacity;
+        minFreq = 0;
+    }
+
+    void updateFreqMap(Node* temp) {
+        mpp.erase(temp->key);
+        freqMap[temp->ct]->deletionOfNode(temp);
+
+        if ((temp->ct) == minFreq && freqMap[temp->ct]->size == 0) {
+            minFreq++;
+            ;
+        }
+
+        List* nextFreqList = new List();
+        if (freqMap.find(temp->ct + 1) != freqMap.end()) {
+            nextFreqList = freqMap[(temp->ct) + 1];
+        }
+        temp->ct += 1;
+        nextFreqList->addFront(
+            temp); // as this node will be the MRU in its new list
+        freqMap[temp->ct] = nextFreqList; // updating that list in freqMap
+        mpp[temp->key] = temp;
     }
 
     int get(int key) {
-        if (mpp.find(key) == mpp.end()) {
-            return -1;
+        if (mpp.find(key) != mpp.end()) {
+            Node* temp = mpp[key];
+            int val = temp->val;
+            updateFreqMap(temp);
+            return val;
         }
 
-        Node* temp = mpp[key];
-        temp->ct += 1;
-
-        deletion(temp);
-        insertion(temp, head);
-
-        return temp->val;
+        return -1;
     }
 
     void put(int key, int value) {
+        if (sz == 0) {
+            return;
+        }
         if (mpp.find(key) != mpp.end()) {
             Node* temp = mpp[key];
-            temp->ct++;
             temp->val = value;
-            deletion(temp);
-            insertion(temp, head);
+            updateFreqMap(temp);
         } else {
-            if (mpp.size() == sz && sz!=0) {
-                deletionOfTail(head, tail,mpp); // deletion of the LRU and delete from mpp also.
+            if (mpp.size() == sz) {
+                List* list = freqMap[minFreq];
+                Node* node = list->tail->back;
+                int key = node->key;
+                mpp.erase(key);
+                list->deletionOfNode(node);
             }
-            Node* temp = new Node(key, value);
-            insertion(temp, head); // insertion at head as this is MRU now
-            mpp[key] = temp;
+            minFreq = 1; // as new value is added
+            List* freqList = new List();
+            if (freqMap.find(minFreq) != freqMap.end()) {
+                freqList = freqMap[minFreq];
+            }
+
+            Node* node = new Node(key, value);
+            freqList->addFront(node);
+            mpp[key] = node;
+            freqMap[minFreq] = freqList;
         }
     }
-}
-;
+};
 
 /**
  * Your LFUCache object will be instantiated and called as such:
