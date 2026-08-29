@@ -11,19 +11,24 @@
  */
 class Solution {
 public:
-// This is how we traverse preorderly in a binary tree
-
-    void traverse(TreeNode* root,vector<int>& ans){
-        if(root == NULL){return ;}
-        ans.push_back(root->val);
-        traverse(root->left,ans);
-        traverse(root->right,ans);
-    }
-
     vector<int> preorderTraversal(TreeNode* root) {
+        if(root==NULL){return {};}
+        // root left right
+        stack<TreeNode*> s;
+        s.push(root);
         vector<int> ans;
-        traverse(root,ans);
+        while(!s.empty()){
+            TreeNode* node = s.top();
+            s.pop();
+            if(node->right){s.push(node->right);} // as stack will first remove the last element
+            if(node->left){s.push(node->left);}
+            ans.push_back(node->val);
+
+        }
 
         return ans;
+
+
+
     }
 };
