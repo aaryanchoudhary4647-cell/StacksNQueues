@@ -11,34 +11,36 @@
  */
 class Solution {
 public:
-
-// This is iterative approach using 2 stacks 
-// The intution is that we store in s2 as root-> right - > left an then we print it in l -> r -> root as s2 is a stack with LIFO
-
     vector<int> postorderTraversal(TreeNode* root) {
         if(root==NULL){return {};}
-        stack<TreeNode*> s1;
-        stack<TreeNode*> s2;
-        s1.push(root);
+        stack<TreeNode*> s;
         vector<int> ans;
+        TreeNode* node = root;
+        TreeNode* lastVisited = nullptr;
+        s.push(root);
+        while(!s.empty()){
+            
+            while(node!=NULL){
+                node = node->left;
+                if(node){s.push(node);}
+            }
 
-        while(!s1.empty()){
-            TreeNode* node = s1.top();
-            s1.pop();
-            s2.push(node);
-            if(node->left){s1.push(node->left);}
-            if(node->right){s1.push(node->right);}
+            TreeNode* temp = s.top();
+
+            // to check if we have processed the right half or not
+            if(temp->right && temp->right != lastVisited){
+                node = temp->right;
+                s.push(node);
+            }
+            // if not then we have processed the right and the left sub trees
+            else{
+                ans.push_back(temp->val);
+                s.pop();
+                lastVisited = temp;
+            }
+            
         }
-
-        while(!s2.empty()){
-            ans.push_back(s2.top()->val);
-            s2.pop();
-        }
-
 
         return ans;
-
-
-
     }
 };
