@@ -11,23 +11,20 @@
  */
 class Solution {
 public:
+
+    int recursive(TreeNode* node){
+        if(node->right==NULL && node->left==NULL){return 1;}
+
+        int a=0;
+        int b=0;
+        if(node->left){a=recursive(node->left);}
+        if(node->right){b=recursive(node->right);}
+
+        return 1+max(a,b);
+    }
+
     int maxDepth(TreeNode* root) {
         if(root==NULL){return 0;}
-
-        queue<TreeNode*> q;
-        q.push(root);
-        int ct=0;
-        while(!q.empty()){
-            int n = q.size();
-            for(int i=0;i<n;i++){
-                TreeNode* node = q.front();
-                q.pop();
-                if(node->left){q.push(node->left);}
-                if(node->right){q.push(node->right);}
-            }
-            ct++;
-        } 
-
-        return ct;
+        return recursive(root);
     }
 };
