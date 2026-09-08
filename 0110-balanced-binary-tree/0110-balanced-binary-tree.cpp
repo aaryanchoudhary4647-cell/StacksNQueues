@@ -11,22 +11,21 @@
  */
 class Solution {
 public:
- // to minimise the TC we will simultaneously check for the balanced BT while calculating the height
-    int check(TreeNode* node){
+
+    int height(TreeNode* node){
         if(node==NULL){return 0;}
 
-        int lh = check(node->left);
-        int rh = check(node->right);
-        if(lh==-1 || rh==-1){return -1;}
-        if(abs(lh-rh)>1){return -1;}
-
-        return 1 + max(lh,rh);
+        return 1 + max(height(node->left),height(node->right));
     }
 
     bool isBalanced(TreeNode* root) {
         if(root==NULL){return true;}
 
-        if(check(root)==-1){return false;}
+        int lh = height(root->left);
+        int rh = height(root->right);
+        if(abs(lh-rh)>1){return false;}
+
+        if(!isBalanced(root->left) || !isBalanced(root->right)){return false;}
 
         return true;
     }
